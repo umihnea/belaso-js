@@ -1,18 +1,12 @@
-const mapLettersToCodes = (rawAlphabet) => {
-  const letters = [];
+/**
+ * Takes in the alphabet and maps each letter to a numeric code.
+ * @param alphabet: list: valid alphabet
+ * @returns {{alphabetSize: *, codeToLetter: *, letterToCode: *}}
+ */
+const mapLettersToCodes = (alphabet) => {
   let letterToCode = {};
   let codeToLetter = {};
-
-  for (let i = 0; i < rawAlphabet.length; i++) {
-    if (letters.includes(rawAlphabet[i])) {
-      console.warn(`Found duplicate '${rawAlphabet[i]}' in alphabet. Skipping.`);
-      continue;
-    }
-
-    letters.push(rawAlphabet[i]);
-  }
-
-  let alphabetSize = letters.length;
+  const letters = alphabet || [];
 
   let code = 0;
   letters.forEach(letter => {
@@ -21,28 +15,7 @@ const mapLettersToCodes = (rawAlphabet) => {
     code++;
   });
 
-  return { letterToCode, codeToLetter, alphabetSize };
-};
-
-const cleanKey = (rawKey, letterToCode) => {
-  const key = [];
-  let errorLetters = [];
-
-  for (let i = 0; i < rawKey.length; i++) {
-    if (key.includes(rawKey[i])) {
-      console.warn(`Found duplicate '${rawKey[i]}' in key. Skipping.`);
-      continue;
-    }
-
-    if (!(rawKey[i] in letterToCode)) {
-      errorLetters.push(rawKey[i]);
-      continue;
-    }
-
-    key.push(rawKey[i]);
-  }
-
-  return { key, keyError: errorLetters };
+  return {letterToCode, codeToLetter};
 };
 
 const cleanPlaintext = (rawPlaintext, letterToCode) => {
@@ -58,7 +31,7 @@ const cleanPlaintext = (rawPlaintext, letterToCode) => {
     text.push(rawPlaintext[i]);
   }
 
-  return { plaintext: text, plaintextError: errorLetters };
+  return {plaintext: text, plaintextError: errorLetters};
 };
 
 const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
@@ -72,38 +45,63 @@ const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   return cipher.join('');
 };
 
-$('#encrypt-button').on('click', () => {
+const getCleanInput = () => {
+  const errors = [];
 
+  const rawKey = $("#key-input").val();
   const rawAlphabet = $("#alphabet-input").val();
 
-  if (!rawAlphabet) {
-    alert('Alphabet is empty.');
+  if (!rawAlphabet || rawAlphabet.length === 0) {
+    errors.push('Alphabet is empty.');
+  }
+
+  if (!rawKey || rawKey.length === 0) {
+    errors.push('Key is empty.');
+  }
+
+  /* The alphabet is a sequence (stored as a list) of unique characters. */
+  const alphabet = [];
+  for (let i = 0; i < rawAlphabet.length; i++) {
+    if (alphabet.includes(rawAlphabet[i])) {
+      errors.push('Repeated letters in alphabet.');
+      break;
+    }
+    alphabet.push(rawAlphabet[i]);
+  }
+
+  /* The key is a sequence of characters from the alphabet. */
+  const key = [];
+  for (let i = 0; i < rawKey.length; i++) {
+    if (!alphabet.includes(rawKey[i])) {
+      errors.push('Some key letters are not from the alphabet.');
+      break;
+    }
+
+    key.push(rawKey[i]);
+  }
+
+  const alphabetSize = alphabet.length;
+
+  return {alphabet, alphabetSize, key, errors};
+};
+
+$('#encrypt-button').on('click', () => {
+  const rawPlaintext = $("#plaintext-textarea").val();
+
+  const {alphabet, alphabetSize, key, errors} = getCleanInput();
+
+  if (errors && errors.length > 0) {
+    alert(errors.join('\n'));
     return;
   }
 
-  const { letterToCode, codeToLetter, alphabetSize } = mapLettersToCodes(rawAlphabet);
+  const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
 
   if (Object.keys(letterToCode).length === 0) {
     return;
   }
 
-  const rawKey = $("#key-input").val();
-
-  if (!rawKey) {
-    alert('Key is empty.');
-    return;
-  }
-
-  const { key, keyError } = cleanKey(rawKey, letterToCode);
-
-  if (keyError.length > 0) {
-    alert(`Some key letters are not in the alphabet.\n${keyError.join(', ')}`);
-    return;
-  }
-
-  const rawPlaintext = $("#plaintext-textarea").val();
-
-  const { plaintext, plaintextError } = cleanPlaintext(rawPlaintext, letterToCode);
+  const {plaintext, plaintextError} = cleanPlaintext(rawPlaintext, letterToCode);
 
   if (plaintextError.length > 0) {
     alert(`Some plaintext letters are not in the alphabet.\n${plaintextError.join(', ')}`);
@@ -111,7 +109,6 @@ $('#encrypt-button').on('click', () => {
   }
 
   const ciphertext = encrypt(plaintext, key, alphabetSize, letterToCode, codeToLetter);
-
   $("#ciphertext-textarea").text(ciphertext);
 });
 
