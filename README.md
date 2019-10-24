@@ -1,14 +1,15 @@
 ## belaso-js
-A JS & JQuery implementation for the Belaso-Vigenère Cipher.
+A JS & jQuery implementation for the Belaso-Vigenère Cipher.
 
 ### About Belaso-Vigenère
-Belaso-Vigenère is a shift cipher and can be considered a natural evolution from the Caesar cipher.
+Belaso-Vigenère is a **simple shift cipher** and can be considered a natural evolution of the Caesar cipher.
 Instead of using a single-valued key, this cipher uses a whole
 sequence of characters. As such, the key can be defined as a word in the alphabet.
 More information can be found [here](http://tamboril.de:12514/classical_ciphers#belaso-vigen%C3%A8re-cipher). 
 
 ### Implementation
-The JS implementation has a little over 150 LoC. However the core algorithm is only a few lines long:
+The JS implementation has ~160 lines. However the core algorithm is only a few lines long:
+> **Note.** This is a functional example but the exact implementation is subject to change.
 ```$xslt
 const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   const cipher = [];
@@ -21,18 +22,29 @@ const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   return cipher.join('');
 };
 ```
-We use two dictionaries to map from letter to numeric values and vice versa: `letterToCode` and `codeToLetter`.
-The mapping between letters and codes is done at the start.
 
-We compute a `blockLength` which is nothing else than the length of the key.
-Each **block** of plaintext is then encrypted using the key.
+We use two dictionaries: one that maps from letter to numeric (_code_) values
+and a reverse dictionary: `letterToCode`, and `codeToLetter` respectively.
+The mapping between letters and codes is pre-computed at the start, given the **alphabet**.
 
-The computation uses the numeric codes. The encryption formula is applied.
-Then the result (which is computed modulo `alphabetSize` to keep results in the **same space**).
+Each **block** of plaintext is then encrypted using the key. We denote with `blockLength` the key length.
 
-After the computation, we map the code back to a letter using the pre-computed `codeToLetter`.
+For each individual letter within the block, we take the code and shift it.
+The shift is given by the current position in the key (`key[k]`).
+The key is simply rotated using `k = (k + 1) % blockLength`.
 
-Internally, the operations occur on lists. Eventually we will obtain a string with `.join('');`.
+The **resulted code** is piped through a modulo (over `alphabetSize`) to keep results in the **same space**.
+After the final code is obtained - we **re-map** the code to **a letter**. 
 
+Internally, all the operations above occur on lists. Calling `.join('');` concatenates the elements and the
+final result is a string - either the **plaintext** (in case of `decrypt`) or the **ciphertext**.
 
+#### Cleaning Input Phase
+The raw input is fetched via jQuery from the HTML form. The raw values are
+split into lists. The following invariants need to be respected:
+* the _alphabet_ is a sequence of unique characters (letters)
+* the key, plaintext and ciphertext only contain characters from the _alphabet_
 
+#### The Special Case of `modulo`
+Depending on the version of ECMAScript running in the browser, one can get wrong results when computing the modulus of a
+ negative integer. In order to correct the negative modulo problem, I implemented a small `modulo` function. 
