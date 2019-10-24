@@ -1,3 +1,8 @@
+$(document).ready(() => {
+  /* Use a default alphabet for convenience. */
+  $("#alphabet-input").val('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,!?_ ');
+});
+
 /**
  * Takes in the alphabet and maps each letter to a numeric code.
  * @param alphabet: list: valid alphabet
