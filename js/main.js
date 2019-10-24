@@ -5,6 +5,8 @@ $(document).ready(() => {
 
 /**
  * Takes in the alphabet and maps each letter to a numeric code.
+ * Returns the dictionary mapping from letter to code and its inverse dictionary.
+ *
  * @param alphabet: list: valid alphabet
  * @returns {{alphabetSize: *, codeToLetter: *, letterToCode: *}}
  */
@@ -23,6 +25,17 @@ const mapLettersToCodes = (alphabet) => {
   return {letterToCode, codeToLetter};
 };
 
+/**
+ * Encrypt a sequence of characters.
+ * Returns a string representing the ciphertext.
+ *
+ * @param plaintext: sequence of plaintext characters
+ * @param key: sequence of key characters
+ * @param alphabetSize: length of the alphabet
+ * @param letterToCode: map from character to a numeric codes
+ * @param codeToLetter: inverse map of letterToCode (from numeric code to character)
+ * @returns {string}
+ */
 const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   const cipher = [];
   let blockLength = key.length;
@@ -36,7 +49,7 @@ const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
 
 /**
  * Replacement for modulo.
- * Reasoning: the negative modulo in JS does not perform very well.
+ * Reasoning: the modulo in JS might produce incorrect results on negative numbers.
  * @param x: any integer number
  * @param n: any non-zero natural number
  * @returns number
@@ -54,6 +67,9 @@ const decrypt = (ciphertext, key, alphabetSize, letterToCode, codeToLetter) => {
   return plain.join('');
 };
 
+/**
+ * Fetch the raw input from the HTML query and process it.
+ */
 const getCleanInput = () => {
   const errors = [];
 

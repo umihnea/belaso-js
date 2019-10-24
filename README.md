@@ -7,7 +7,7 @@ Instead of using a single-valued key, this cipher uses a whole
 sequence of characters. As such, the key can be defined as a word in the alphabet.
 More information can be found [here](http://tamboril.de:12514/classical_ciphers#belaso-vigen%C3%A8re-cipher). 
 
-### Implementation
+### Implementation  
 The JS implementation has ~160 lines. However the core algorithm is only a few lines long:
 > **Note.** This is a functional example but the exact implementation is subject to change.
 ```$xslt
@@ -46,5 +46,5 @@ split into lists. The following invariants need to be respected:
 * the key, plaintext and ciphertext only contain characters from the _alphabet_
 
 #### The Special Case of `modulo`
-Depending on the version of ECMAScript running in the browser, one can get wrong results when computing the modulus of a
+Depending on the version of ECMAScript running in the browser, one can get wrong results when computing the modulo of a
  negative integer. In order to correct the negative modulo problem, I implemented a small `modulo` function. 
