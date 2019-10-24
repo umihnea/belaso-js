@@ -18,22 +18,6 @@ const mapLettersToCodes = (alphabet) => {
   return {letterToCode, codeToLetter};
 };
 
-const cleanPlaintext = (rawPlaintext, letterToCode) => {
-  const text = [];
-  let errorLetters = [];
-
-  for (let i = 0; i < rawPlaintext.length; i++) {
-    if (!(rawPlaintext[i] in letterToCode)) {
-      errorLetters.push(rawPlaintext[i]);
-      continue;
-    }
-
-    text.push(rawPlaintext[i]);
-  }
-
-  return {plaintext: text, plaintextError: errorLetters};
-};
-
 const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   const cipher = [];
   let blockLength = key.length;
@@ -45,11 +29,34 @@ const encrypt = (plaintext, key, alphabetSize, letterToCode, codeToLetter) => {
   return cipher.join('');
 };
 
+/**
+ * Replacement for modulo.
+ * Reasoning: the negative modulo in JS does not perform very well.
+ * @param x: any integer number
+ * @param n: any non-zero natural number
+ * @returns number
+ */
+const modulo = (x, n) => (x % n + n) % n;
+
+const decrypt = (ciphertext, key, alphabetSize, letterToCode, codeToLetter) => {
+  const plain = [];
+  let blockLength = key.length;
+  for (let i = 0, k = 0; i < ciphertext.length; i++, k = (k + 1) % blockLength) {
+    const shiftedCode = modulo(letterToCode[ciphertext[i]] - letterToCode[key[k]], alphabetSize);
+    plain.push(codeToLetter[shiftedCode]);
+    console.log(plain[plain.length - 1]);
+  }
+
+  return plain.join('');
+};
+
 const getCleanInput = () => {
   const errors = [];
 
   const rawKey = $("#key-input").val();
   const rawAlphabet = $("#alphabet-input").val();
+  const rawPlaintext = $("#plaintext-textarea").val();
+  const rawCiphertext = $("#ciphertext-textarea").val();
 
   if (!rawAlphabet || rawAlphabet.length === 0) {
     errors.push('Alphabet is empty.');
@@ -80,15 +87,33 @@ const getCleanInput = () => {
     key.push(rawKey[i]);
   }
 
+  const plaintext = [];
+  for (let i = 0; i < rawPlaintext.length; i++) {
+    if (!alphabet.includes(rawPlaintext[i])) {
+      errors.push('Some plaintext letters are not from the alphabet.');
+      break;
+    }
+
+    plaintext.push(rawPlaintext[i]);
+  }
+
+  const ciphertext = [];
+  for (let i = 0; i < rawCiphertext.length; i++) {
+    if (!alphabet.includes(rawCiphertext[i])) {
+      errors.push('Some ciphertext letters are not from the alphabet.');
+      break;
+    }
+
+    ciphertext.push(rawCiphertext[i]);
+  }
+
   const alphabetSize = alphabet.length;
 
-  return {alphabet, alphabetSize, key, errors};
+  return {alphabet, alphabetSize, key, plaintext, ciphertext, errors};
 };
 
 $('#encrypt-button').on('click', () => {
-  const rawPlaintext = $("#plaintext-textarea").val();
-
-  const {alphabet, alphabetSize, key, errors} = getCleanInput();
+  const {alphabet, alphabetSize, key, plaintext, _, errors} = getCleanInput();
 
   if (errors && errors.length > 0) {
     alert(errors.join('\n'));
@@ -96,22 +121,21 @@ $('#encrypt-button').on('click', () => {
   }
 
   const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
-
-  if (Object.keys(letterToCode).length === 0) {
-    return;
-  }
-
-  const {plaintext, plaintextError} = cleanPlaintext(rawPlaintext, letterToCode);
-
-  if (plaintextError.length > 0) {
-    alert(`Some plaintext letters are not in the alphabet.\n${plaintextError.join(', ')}`);
-    return;
-  }
-
   const ciphertext = encrypt(plaintext, key, alphabetSize, letterToCode, codeToLetter);
+
   $("#ciphertext-textarea").text(ciphertext);
 });
 
 $('#decrypt-button').on('click', () => {
-  alert('decrypt.');
+  const {alphabet, alphabetSize, key, _, ciphertext, errors} = getCleanInput();
+
+  if (errors && errors.length > 0) {
+    alert(errors.join('\n'));
+    return;
+  }
+
+  const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
+  const plaintext = decrypt(ciphertext, key, alphabetSize, letterToCode, codeToLetter);
+
+  $("#plaintext-textarea").text(plaintext);
 });
