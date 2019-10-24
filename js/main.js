@@ -119,8 +119,8 @@ $('#encrypt-button').on('click', () => {
 
   const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
   const ciphertext = encrypt(plaintext, key, alphabet.length, letterToCode, codeToLetter);
-  console.log(ciphertext);
-  $("#ciphertext-textarea").text(ciphertext);
+
+  $("#ciphertext-textarea").val(ciphertext);
 });
 
 $('#decrypt-button').on('click', () => {
@@ -133,6 +133,6 @@ $('#decrypt-button').on('click', () => {
 
   const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
   const plaintext = decrypt(ciphertext, key, alphabet.length, letterToCode, codeToLetter);
-  console.log(plaintext);
-  $("#plaintext-textarea").text(plaintext);
+
+  $("#plaintext-textarea").val(plaintext);
 });
