@@ -1,0 +1,24 @@
+/* primary-spacing: 2em */
+
+body {
+  margin: 0;
+  font-family: Hack, serif;
+}
+
+.main-row {
+  margin-bottom: 2em;
+}
+
+.content-wrapper {
+  margin: 8em;
+}
+
+.buttons-container {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.encrypt-button {
+  margin-right: 1em;
+}
