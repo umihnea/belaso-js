@@ -44,7 +44,6 @@ const decrypt = (ciphertext, key, alphabetSize, letterToCode, codeToLetter) => {
   for (let i = 0, k = 0; i < ciphertext.length; i++, k = (k + 1) % blockLength) {
     const shiftedCode = modulo(letterToCode[ciphertext[i]] - letterToCode[key[k]], alphabetSize);
     plain.push(codeToLetter[shiftedCode]);
-    console.log(plain[plain.length - 1]);
   }
 
   return plain.join('');
@@ -107,13 +106,11 @@ const getCleanInput = () => {
     ciphertext.push(rawCiphertext[i]);
   }
 
-  const alphabetSize = alphabet.length;
-
-  return {alphabet, alphabetSize, key, plaintext, ciphertext, errors};
+  return {alphabet, key, plaintext, ciphertext, errors};
 };
 
 $('#encrypt-button').on('click', () => {
-  const {alphabet, alphabetSize, key, plaintext, _, errors} = getCleanInput();
+  const {alphabet, key, plaintext, _, errors} = getCleanInput();
 
   if (errors && errors.length > 0) {
     alert(errors.join('\n'));
@@ -121,13 +118,13 @@ $('#encrypt-button').on('click', () => {
   }
 
   const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
-  const ciphertext = encrypt(plaintext, key, alphabetSize, letterToCode, codeToLetter);
-
+  const ciphertext = encrypt(plaintext, key, alphabet.length, letterToCode, codeToLetter);
+  console.log(ciphertext);
   $("#ciphertext-textarea").text(ciphertext);
 });
 
 $('#decrypt-button').on('click', () => {
-  const {alphabet, alphabetSize, key, _, ciphertext, errors} = getCleanInput();
+  const {alphabet, key, _, ciphertext, errors} = getCleanInput();
 
   if (errors && errors.length > 0) {
     alert(errors.join('\n'));
@@ -135,7 +132,7 @@ $('#decrypt-button').on('click', () => {
   }
 
   const {letterToCode, codeToLetter} = mapLettersToCodes(alphabet);
-  const plaintext = decrypt(ciphertext, key, alphabetSize, letterToCode, codeToLetter);
-
+  const plaintext = decrypt(ciphertext, key, alphabet.length, letterToCode, codeToLetter);
+  console.log(plaintext);
   $("#plaintext-textarea").text(plaintext);
 });
