@@ -5,7 +5,7 @@ A JS & jQuery implementation for the Belaso-Vigenère Cipher.
 Belaso-Vigenère is a **simple shift cipher** and can be considered a natural evolution of the Caesar cipher.
 Instead of using a single-valued key, this cipher uses a whole
 sequence of characters. As such, the key can be defined as a word in the alphabet.
-More information can be found [here](http://tamboril.de:12514/classical_ciphers#belaso-vigen%C3%A8re-cipher). 
+More information can be found [here](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher). 
 
 ### Implementation  
 The JS implementation has ~160 lines. However the core algorithm is only a few lines long:
